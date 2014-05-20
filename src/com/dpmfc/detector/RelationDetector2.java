@@ -119,10 +119,15 @@ public class RelationDetector2 extends ASTVisitor {
 	public boolean visit(TypeDeclaration node) {
 		
 		source = node.getName().toString();
+		
+		if (node.typeParameters().size() > 0) {
+			source += "<" + node.typeParameters().get(0).toString() + ">";
+		}
+		
 		if ( node.getSuperclassType() != null) {
 			String superNode = node.getSuperclassType().toString();
 			source = superNode + "." + source;
-//			System.out.println("super node: "+superNode + "; son node: " + source);
+			System.out.println("super node: "+superNode + "; son node: " + source);
 		}
 		
 		

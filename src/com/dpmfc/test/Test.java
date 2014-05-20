@@ -36,7 +36,7 @@ public class Test {
 	
 	public static void main(String[] args) throws Exception {
 
-		String projectPath = "D:\\test\\jdk1.4.2_src\\java\\awt";
+		String projectPath = "D:\\test\\src\\java\\util";
 		
 		/*
 		 * Extract and build all relation 
@@ -88,10 +88,10 @@ public class Test {
 //		analysis.setClassAndPath(classAndPath);
 //		analysis.doStructureAnalyze();
 		
-		analysis = new CompositeAnalysis();
-		analysis.init(weightMap, allRelation);
-		analysis.setClassAndPath(classAndPath);
-		analysis.doStructureAnalyze();
+//		analysis = new CompositeAnalysis();
+//		analysis.init(weightMap, allRelation);
+//		analysis.setClassAndPath(classAndPath);
+//		analysis.doStructureAnalyze();
 		
 //		analysis = new AdapterObjectAnalysis();
 //		analysis.init(weightMap, allRelation);
