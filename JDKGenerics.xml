@@ -1,0 +1,26 @@
+<set>
+	<values>
+AbstractCollection
+AbstractList
+SubList
+ArrayList
+Collection
+HashEntry
+Node
+KeySet
+Values
+EntrySet
+HashSet
+Iterator
+List
+ListIterator
+Queue
+Set
+Stack
+KeySet
+TreeSet
+Vector
+HashIterator
+	</values>
+	<package>java.util</package>
+</set>

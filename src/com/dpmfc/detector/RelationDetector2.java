@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
@@ -57,23 +58,40 @@ public class RelationDetector2 extends ASTVisitor {
 	protected RelationBean allRelation;
 	private String source;
 	private String destination;
+
+	private String packageName;
+	private MarkGeneric markGeneric;
+	private List<String> genericClassList;
+	private List<String> JDKGenericList;
 	
-	public RelationDetector2(String projectPath, RelationBean relationBean) throws IOException{
+	public RelationDetector2(String projectPath, RelationBean relationBean) throws Exception{
 		super();
 		
 		this.allRelation = relationBean;
 		FileUtil fileTool = new FileUtil();
 		ArrayList<String> filePath = fileTool.getAllJavaFilePath(projectPath);
 		
+		// for mark generic
+		GenericDetector genericDetector = new GenericDetector(projectPath);
+		genericClassList = genericDetector.getGenericClassList();
+		JDKGenericList = genericDetector.getJDKGenericList();
+		
 		for (int i = 0; i < filePath.size(); i++) {
-			classPath = filePath.get(i);
 			
+			classPath = filePath.get(i);		
 			classInSameFile = new HashSet<String>();
+			
+			markGeneric = new MarkGeneric();
 			
 			CompilationUnit compUnit = JavaCode2AST.getCompilationUnit(classPath);
 			compUnit.accept(this);
 			
 			pathAndClass.put(classPath, classInSameFile);
+			
+			// for mark generic
+			markGeneric.checkGenericInSystem(genericClassList, JDKGenericList);
+			markGeneric.hasAddAndRemoveCall(classPath);
+			markGeneric.printGeneric(classPath);
 		}
 	}
 	
@@ -114,106 +132,79 @@ public class RelationDetector2 extends ASTVisitor {
 		return allRelation;
 	}
 	
-	// dependency detector
+	@Override
+	public boolean visit(PackageDeclaration node) {
+		packageName = node.getName().toString();
+		return super.visit(node);
+	}
+
 	@Override
 	public boolean visit(TypeDeclaration node) {
 		
 		source = node.getName().toString();
 		
-		if (node.typeParameters().size() > 0) {
-			source += "<" + node.typeParameters().get(0).toString() + ">";
-		}
-		
 		if ( node.getSuperclassType() != null) {
 			String superNode = node.getSuperclassType().toString();
 			source = superNode + "." + source;
-			System.out.println("super node: "+superNode + "; son node: " + source);
+//			System.out.println("super node: "+superNode + "; son node: " + source);
 		}
 		
+		if (node.typeParameters().size() > 0) {
+			String parameters = "";
+			for (int i = 0; i < node.typeParameters().size(); i++) {
+				parameters += node.typeParameters().get(i).toString();
+				
+				if (i + 1 < node.typeParameters().size()) {
+					parameters += ",";
+				}
+			}	
+			source += "<" + parameters + ">";
+			genericClassList.add(source);
+//			System.out.println(source + "; " + packageName);
+		}
 		
 		//for all classes 
 		allClassSet.add(source);
 		classInSameFile.add(source);
 		classAndPath.put(source, classPath);
-		
-		//for inheritance detect
-		//if it has super class
-		if (node.getSuperclassType() != null) {	
-			getTypeName(node.getSuperclassType());
-			allRelation.putRelation(source, destination, Weight.INHERITANCE);
-		}
-		
-		//if it has interface
-		for (Object i: node.superInterfaceTypes()) {
-			getTypeName(((Type)i));
-			allRelation.putRelation(source, destination, Weight.INHERITANCE);
-		}
+
+		inheritanceDetect(node);
 		
 		return super.visit(node);
 	}
 	
-	/*
-	 * for association detect
-	 */
 	@Override
 	public boolean visit(FieldDeclaration node) {
 		
-		//if it associated with other		
-		getTypeName(node.getType());	
-		if (destination != null && !destination.equals("")) {
-			allRelation.putRelation(source, destination, Weight.ASSOCIATION);
-		}
+		associationDetect(node);
+		
+		// for mark generic
+		markGeneric.checkGenericByField(destination, node);
 		
 		return super.visit(node);
 	}
-	
-	
-	/*
-	 * for dependency detect
-	 */
+
 	@Override
 	public boolean visit(MethodDeclaration node) {
-		
-		//find each class of parameters of a method
-		List parametersList = node.parameters();
-		
-		for (Object object : parametersList) {
-			getTypeName(((SingleVariableDeclaration)object).getType());
-			if (source == null || destination == null || allRelation == null) {
-				System.out.println();
-			}
-			else {
-				allRelation.putRelation(source, destination, Weight.DEPENDENCY);
-			}
-		}
-		
+
+		dependencyDetect(node);
 		return super.visit(node);
 	}
 	
 	@Override
 	public boolean visit(ClassInstanceCreation node) {
 
-		//find otherclass's object which is created as local variables in method
-		if (node.getType() != null) {
-			getTypeName(node.getType());
-			allRelation.putRelation(source, destination, Weight.DEPENDENCY);
-		}
-
+		dependencyDetect(node);
 		return super.visit(node);
 	}
 
 	@Override
 	public boolean visit(MethodInvocation node) {
-
-		//find a "static" method invocation of other class
-		if (node.getExpression() != null) {
-			destination = node.getExpression().toString();
-			
-			if (Character.isUpperCase(destination.charAt(0))) {
-				allRelation.putRelation(source, destination, Weight.DEPENDENCY);
-			}
-			
-		}
+		
+		dependencyDetect(node);
+		
+		// for mark generic
+		markGeneric.collectMethodCall(node);
 		
 		return super.visit(node);
 	}
@@ -248,5 +239,80 @@ public class RelationDetector2 extends ASTVisitor {
 	public void setClassAndPath(HashMap<String, String> classAndPath) {
 		this.classAndPath = classAndPath;
 	}
-
+	
+	
+	/*
+	 * for inheritance detecting, include Inheritance and realization
+	 */
+	private void inheritanceDetect(TypeDeclaration node) {
+		//if it has super class
+		if (node.getSuperclassType() != null) {
+			getTypeName(node.getSuperclassType());
+			allRelation.putRelation(source, destination, Weight.INHERITANCE);
+		}
+		
+		//if it has interface
+		for (Object i: node.superInterfaceTypes()) {
+			getTypeName(((Type)i));
+			allRelation.putRelation(source, destination, Weight.INHERITANCE);
+		}
+	}
+	
+	
+	/*
+	 * for association detecting
+	 */
+	private void associationDetect(FieldDeclaration node) {
+				
+		getTypeName(node.getType());
+		if (destination != null && !destination.equals("")) {
+			allRelation.putRelation(source, destination, Weight.ASSOCIATION);
+		}
+	}
+	
+	
+	/*
+	 * do dependency detecting, through parameters of method 
+	 */
+	private void dependencyDetect(MethodDeclaration node) {
+		//get the type of parameters of each method
+		List parametersList = node.parameters();
+		
+		for (Object object : parametersList) {
+			getTypeName(((SingleVariableDeclaration)object).getType());
+			if (source == null || destination == null || allRelation == null) {
+				System.out.println();
+			}
+			else {
+				allRelation.putRelation(source, destination, Weight.DEPENDENCY);
+			}
+		}
+	}
+	
+	
+	/*
+	 * do dependency detecting, through Class Instance Creation
+	 */
+	private void dependencyDetect(ClassInstanceCreation node) {
+		//find otherclass's object which is created as local variables in method
+		if (node.getType() != null) {
+			getTypeName(node.getType());
+			allRelation.putRelation(source, destination, Weight.DEPENDENCY);
+		}
+	}
+	
+	
+	/*
+	 * do dependency detecting, through Method Invocation
+	 */
+	private void dependencyDetect(MethodInvocation node) {
+		//find a "static" method invocation of other class
+		if (node.getExpression() != null) {
+			destination = node.getExpression().toString();
+			
+			if (Character.isUpperCase(destination.charAt(0))) {
+				allRelation.putRelation(source, destination, Weight.DEPENDENCY);
+			}
+		}
+	}
 }

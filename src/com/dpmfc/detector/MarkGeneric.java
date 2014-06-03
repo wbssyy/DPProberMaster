@@ -1,95 +1,151 @@
 package com.dpmfc.detector;
 
-import java.awt.MenuBar;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import javax.swing.tree.ExpandVetoException;
-
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 
-import com.dpmfc.bean.RelationBean;
-import com.dpmfc.test.JavaCode2AST;
-import com.dpmfc.util.FileUtil;
-import com.dpmfc.util.OutputUtil;
+import com.dpmfc.util.XMLUtil;
 
-public class MarkGeneric extends ASTVisitor {
+public class MarkGeneric {
 	
-	private ArrayList<String> fieldNameList;
+	/*
+	 * key: field name
+	 * value: field type
+	 */
+	private HashMap<String, String> fieldMap;
+	
 	private ArrayList<String> expressionList;
 	
-	private int number = 1;
+	public MarkGeneric() {
+		fieldMap = new HashMap<String, String>();
+		expressionList = new ArrayList<String>();
+	}
 	
-	public MarkGeneric(String projectPath, RelationBean relationBean) throws Exception{
-		super();
-//	MenuBar
-		FileUtil fileTool = new FileUtil();
-		ArrayList<String> filePath = fileTool.getAllJavaFilePath(projectPath);
-		
-		for (int i = 0; i < filePath.size(); i++) {
-			fieldNameList = new ArrayList<String>();
-			expressionList = new ArrayList<String>();
-//			System.out.println(number++);
-			
-			CompilationUnit compUnit = JavaCode2AST.getCompilationUnit(filePath.get(i));
-			compUnit.accept(this);
-			
-//			for (String fieldName : fieldNameList) {
-//				System.out.println(fieldName);
-//			}
-			for (String fieldName : fieldNameList) {
+	
+	/*
+	 * Determine whether there is a add() and a remove() call by the field
+	 */
+	public void hasAddAndRemoveCall(String classPath) {
 
-				for (String expression : expressionList) {
-
-					String expressionName = expression.substring(0, expression.indexOf("."));
-					String expressionMethod = expression.substring(expression.indexOf("."));
-					
-					if (fieldName.contains("=")) {
-						fieldName = fieldName.substring(0, fieldName.indexOf("="));
-					}
-					
-					if (expressionName.contains(fieldName) && expressionMethod.contains("add")) {
-						System.out.println(fieldName + ": " + expression);
-					}
+		Iterator iterator = fieldMap.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry entry = (Map.Entry)iterator.next();
+			String fieldName = entry.getKey().toString();
+			
+			boolean addFlag = false;			
+			for (String expression : expressionList) {
+				
+				String expressionName = expression.substring(0, expression.indexOf("."));
+				String expressionMethod = expression.substring(expression.indexOf("."));
+				
+				if (fieldName.contains("=")) {
+					fieldName = fieldName.substring(0, fieldName.indexOf("="));
 				}
+				if (expressionName.equals(fieldName) && (expressionMethod.contains("add") ||
+						expressionMethod.contains("remove"))) {
+					getParameterizedType(classPath, expression);
+					addFlag = true;
+				}
+			}
+			if (!addFlag) {
+				iterator.remove();
 			}
 		}
 	}
-
-	@Override
-	public boolean visit(FieldDeclaration node) {
-		Vector<String> tempStrings = new Vector<>();
-		Vector te = new Vector<>();
+	
+	
+	/*
+	 * 
+	 */
+	public void printGeneric(String classPath) {
 		
-		String fieldName = node.fragments().get(0).toString();
-		if (fieldNameList != null) {
-			fieldNameList.add(fieldName);
+		Iterator iterator = fieldMap.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry entry = (Map.Entry)iterator.next();
+			String fieldName = entry.getKey().toString();
+			String fieldType = entry.getValue().toString();
+			
+			System.out.println(fieldType + " " + fieldName + "; " + classPath);
 		}
-		
-//		System.out.println("fieldName: " + fieldName);
-		
-		return super.visit(node);
 	}
 	
-	@Override
-	public boolean visit(MethodInvocation node) {
+	/*
+	 * get generic parameterized type
+	 */
+	public void getParameterizedType(String classPath, String expression) {
+		
+		classPath = classPath.replace('\\', ' ');
+		classPath = classPath.replaceAll(" ", "\\\\");
+		System.out.println(classPath);
+		try {
+			AddGeneric addGeneric = new AddGeneric(classPath, expression);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/*
+	 * Determine whether the field is a generic
+	 */
+	public void checkGenericByField(String destination, FieldDeclaration node) {
+		
+		if (!node.getType().isParameterizedType()) {
+				String fieldName = node.fragments().get(0).toString();
+				if (fieldMap != null) {
+					fieldMap.put(fieldName, node.getType().toString());	
+				}
+		}
+	}
+	
+	
+	/*
+	 * collects all method invocation that in a class. In order to determine whether there
+	 *  a add() or remove() in hasAddOrRemoveCall().
+	 */
+	public void collectMethodCall(MethodInvocation node) {
 
 		if (node.getExpression() != null && expressionList != null) {
 			String expression = node.toString();	
 			expressionList.add(expression);
 //			System.out.println("expression: " + expression);
 		}
-		
-		return super.visit(node);
 	}
 	
-	public static void main(String[] a) throws Exception{
-//		MenuBar
-		MarkGeneric markGeneric = new MarkGeneric("D:\\test\\jdk1.4.2_src\\java\\awt");
+	/*
+	 * 判断字段的类型是否为系统内的泛型
+	 */
+	public void checkGenericInSystem(List genericClassList, List JDKGenericList) {
+		
+		Iterator iterator = fieldMap.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry entry = (Map.Entry)iterator.next();
+			String fieldName = entry.getKey().toString();
+			String fieldType = entry.getValue().toString();
+			
+			boolean flag = false;
+			
+			for (Object generic : genericClassList) {
+				if (generic.toString().contains(fieldType)) {
+					flag = true;
+				}
+			}
+			
+			for (Object JDKGeneric : JDKGenericList) {
+				if (JDKGeneric.toString().contains(fieldType)) {
+					flag = true;
+				}
+			}
+			if (!flag) {
+				iterator.remove();
+			}
+		}
 	}
 }

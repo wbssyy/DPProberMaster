@@ -11,20 +11,55 @@ import org.w3c.dom.NodeList;
 
 public class XMLUtil {
 	
-	public static Object getClassFromXML() throws Exception {
-		//create DOM object
+	public static Object getClassFromXML(String fileName, String tagName) throws Exception {
+		
 		DocumentBuilderFactory docBuilderFactory = 
 				DocumentBuilderFactory.newInstance();
+		Document document = createDomObject(docBuilderFactory, fileName);
+
+		String nodeValue = getNodeValue(document, tagName);
+		
+		return getObjectByNodeValue(nodeValue);
+	}
+	
+	public static String getStringFromXML(String fileName, String tagName) throws Exception {
+		
+		DocumentBuilderFactory docBuilderFactory = 
+				DocumentBuilderFactory.newInstance();
+		Document document = createDomObject(docBuilderFactory, fileName);
+
+		String nodeValue = getNodeValue(document, tagName);
+		
+		return nodeValue;
+	}
+	
+	/*
+	 * create DOM object
+	 */
+	private static Document createDomObject(DocumentBuilderFactory docBuilderFactory, String fileName) throws Exception{
+		
 		DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-		Document document = docBuilder.parse(new File("property.xml"));
+		Document document = docBuilder.parse(new File(fileName));	
+		return document;
+	}
+	
+	/*
+	 * get the node name and get the class name
+	 */
+	private static String getNodeValue(Document document, String tagName) {
 		
-		//get the node name and get the class name
-		NodeList nodeList = document.getElementsByTagName("className");
+		NodeList nodeList = document.getElementsByTagName(tagName);
 		Node node = nodeList.item(0).getFirstChild();
-		String className = node.getNodeValue();
+		String nodeValue = node.getNodeValue();
+		return nodeValue;
+	}
+	
+	/*
+	 * return an object through the node value
+	 */
+	private static Object getObjectByNodeValue(String nodeValue) throws Exception{
 		
-		//return an object through the class name
-		Class tempClass = Class.forName(className);
+		Class tempClass = Class.forName(nodeValue);
 		Object object = tempClass.newInstance();
 		return object;
 	}

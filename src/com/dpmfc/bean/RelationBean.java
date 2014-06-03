@@ -1,9 +1,13 @@
 package com.dpmfc.bean;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 public class RelationBean {
 
@@ -19,6 +23,18 @@ public class RelationBean {
 	
 	public void setAllRelationMap(HashMap<String, RelatedClass> relationMap) {
 		this.allRelationMap = relationMap;
+	}
+	
+	public List<String> getAllClassName() {
+		List<String> allClassName = new ArrayList<String>();
+		Iterator iterator = allRelationMap.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry entry = (Map.Entry)iterator.next();
+			String className = entry.getKey().toString();
+			allClassName.add(className);
+		}
+		return allClassName;
+		
 	}
 	
 	/*
@@ -82,6 +98,17 @@ public class RelationBean {
 		}
 	}
 	
+	public void printAllRelationMap() {
+		Iterator iterator = allRelationMap.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry entry = (Map.Entry)iterator.next();
+			String className = entry.getKey().toString();
+			RelatedClass relatedClass = (RelatedClass)entry.getValue();
+			System.out.println(className + ": ");
+			relatedClass.printRelatedClassMap();
+		}
+	}
+	
 	public class RelatedClass {
 		private HashMap<String, Integer> relatedClassMap;
 		
@@ -101,6 +128,16 @@ public class RelationBean {
 				}
 			} else {
 				relatedClassMap.put(className, weight);
+			}
+		}
+		
+		public void printRelatedClassMap() {
+			Iterator iterator = relatedClassMap.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Map.Entry entry = (Map.Entry)iterator.next();
+				String className = entry.getKey().toString();
+				int weight = (Integer)entry.getValue();
+				System.out.println("         <" + className + ", " + weight + ">");
 			}
 		}
 	}

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import com.dpmfc.bean.ProjectInfo;
 import com.dpmfc.core.*;
 import com.dpmfc.detector.AllRelationshipBuilder;
+import com.dpmfc.detector.CodeModifier;
 import com.dpmfc.util.FileUtil;
 
 public class TestMain {
@@ -18,20 +19,11 @@ public class TestMain {
 	private static long average;
 	
 	public static void main(String[] args) throws Exception {
-		
-//		for (int i = 0; i < 10; i++) {
-//			   Generic();//泛型
-//		}
-		
-		for (int i = 0; i < 10; i++) {
-			   NonGeneric();//原始类型
-		}
-		
-		System.out.println("10次总时间:   " + total + "   ms");//10次消耗时间
-		System.out.println("10次平均值:   " + average + "   ms");
+		CodeModifier modifier = new CodeModifier();
+
 	}
 	
-	 public static void NonGeneric() {
+	private static void NonGeneric() {
 		 
 		  long start = System.currentTimeMillis();//开始时间
 		  ArrayList no_list=new ArrayList();
@@ -48,7 +40,7 @@ public class TestMain {
 		  System.out.println("NonGeneric:   " + time + "   ms");//每次输出消耗时间
 	 }
 	 
-	 public static void Generic() {
+	 private static void Generic() {
 		  long start = System.currentTimeMillis();//开始时间
 		  ArrayList<Integer> list = new ArrayList<Integer>();
 		  for (int k = 0; k < 1000000; k++) {
@@ -63,5 +55,18 @@ public class TestMain {
 		  average = (long) (total/10f);
 		  System.out.println("Generic:   " + time + "   ms");//每次输出消耗时间
 	 }
+	 
+	 private static void testGeneric() {
+		for (int i = 0; i < 10; i++) {
+			Generic();//泛型
+		}
+		
+		for (int i = 0; i < 10; i++) {
+			NonGeneric();//原始类型
+		}
+		
+		System.out.println("10次总时间:   " + total + "   ms");//10次消耗时间
+		System.out.println("10次平均值:   " + average + "   ms");
+	}
 
 }

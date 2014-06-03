@@ -35,8 +35,9 @@ public class Test {
 	private static RelationBean allRelation = new RelationBean();
 	
 	public static void main(String[] args) throws Exception {
-
-		String projectPath = "D:\\test\\src\\java\\util";
+//D:\\test\\src\\java\\util
+//D:\\JOSS-1\\JOSS-1\\struts(2.3.16)\\src
+		String projectPath = "D:\\test\\src\\java\\awt";
 		
 		/*
 		 * Extract and build all relation 
@@ -46,7 +47,7 @@ public class Test {
 		relationshipBuilder.buildAllRelationship(projectPath);
 //		relationshipBuilder.printRelation();
 		RelationBean allRelation = relationshipBuilder.getAllRelation();
-		
+//		allRelation.printAllRelationMap();
 		
 		/*
 		 * test 
@@ -69,7 +70,7 @@ public class Test {
 		calculator.calculateWeight(allRelation);
 		HashMap<String, Integer> weightMap = calculator.getWeightMap();
 		
-		calculator.printWeightMap();
+//		calculator.printWeightMap();
 		
 		
 		/*
