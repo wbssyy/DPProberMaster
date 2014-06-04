@@ -22,8 +22,8 @@ public class TestMain {
 	
 	public static void main(String[] args) throws Exception {
 //		CodeModifier modifier = new CodeModifier();
-		String expression = "parameters.indexOfElement( dfgqewr)";
-		Pattern pattern = Pattern.compile("\\.(?:add)|(?:indexOf)\\w*\\( *(\\w*)\\)");
+		String expression = "parameters.addElement( new Oqewr())";
+		Pattern pattern = Pattern.compile("\\( *(\\w*)\\)");
 		Matcher matcher = pattern.matcher(expression);
 		if (matcher.find()) {
 			System.out.println(matcher.group(1));

@@ -21,6 +21,7 @@ public class MarkGeneric {
 	private HashMap<String, String> fieldMap;
 	
 	private ArrayList<String> expressionList;
+	private String parameterizedType;
 	
 	public MarkGeneric() {
 		fieldMap = new HashMap<String, String>();
@@ -47,10 +48,16 @@ public class MarkGeneric {
 				if (fieldName.contains("=")) {
 					fieldName = fieldName.substring(0, fieldName.indexOf("="));
 				}
-				if (expressionName.equals(fieldName) && (expressionMethod.contains("add") ||
-						expressionMethod.contains("remove"))) {
+				if (expressionName.equals(fieldName) && (expressionMethod.contains("add"))) {
 					getParameterizedType(classPath, expression);
 					addFlag = true;
+				}
+				if (addFlag && expressionMethod.contains("indexOf")) {
+					getParameterizedType(classPath, expression);
+				}
+				
+				if (parameterizedType != null) {
+					break;
 				}
 			}
 			if (!addFlag) {
@@ -71,7 +78,8 @@ public class MarkGeneric {
 			String fieldName = entry.getKey().toString();
 			String fieldType = entry.getValue().toString();
 			
-			System.out.println(fieldType + " " + fieldName + "; " + classPath);
+			System.out.println("77: " + fieldType + "<" + parameterizedType +
+					">" + " " + fieldName + "; " + classPath);
 		}
 	}
 	
@@ -82,9 +90,10 @@ public class MarkGeneric {
 		
 		classPath = classPath.replace('\\', ' ');
 		classPath = classPath.replaceAll(" ", "\\\\");
-		System.out.println(classPath);
+//		System.out.println(classPath);
 		try {
 			AddGeneric addGeneric = new AddGeneric(classPath, expression);
+			parameterizedType = addGeneric.getParameterizedType();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

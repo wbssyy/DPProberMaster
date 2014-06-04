@@ -13,6 +13,7 @@ EntrySet
 HashSet
 Iterator
 List
+LinkedList
 ListIterator
 Queue
 Set

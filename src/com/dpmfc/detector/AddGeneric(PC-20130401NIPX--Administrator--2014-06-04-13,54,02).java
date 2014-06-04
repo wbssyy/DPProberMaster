@@ -9,13 +9,11 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -26,80 +24,45 @@ public class AddGeneric extends ASTVisitor{
 	
 	private String expression;
 	private String parameterizedType;
-	private String genericFieldName;
-	private String tempFieldName;
-	private String className;
-	
+	private String fieldName;
 	
 	public AddGeneric(String classPath, String expression) throws Exception{
 		super();
 
 		this.expression = expression;
 		
-		Pattern pattern = Pattern.compile("\\( *(\\w*)\\)");
-		Matcher matcher = pattern.matcher(expression);
-		if (matcher.find()) {
-			genericFieldName = matcher.group(1);
-		} 
-		
 //		System.out.println(classPath);
-		System.out.println("35: "+expression);
+//		System.out.println(expression);
 		CompilationUnit compUnit = JavaCode2AST.getCompilationUnit(classPath);
 		compUnit.accept(this);
 		
-		if (tempFieldName != null && parameterizedType == null) {
+		if (fieldName != null) {
 			compUnit = JavaCode2AST.getCompilationUnit(classPath);
 			compUnit.accept(this);
 		}
 		
 		if (parameterizedType != null) {
 //			System.out.println(classPath + "##############");
-			System.out.println("---" + expression + "---  " + parameterizedType);
+			System.out.println("---" + expression + "---" + parameterizedType);
 		}
-	}
-	
-	@Override
-	public boolean visit(TypeDeclaration node) {
-		className = node.getName().toString();
-		return super.visit(node);
-	}
-	
-	@Override
-	public boolean visit(FieldDeclaration node) {
-
-		if (tempFieldName != null && parameterizedType == null) {
-			String temp = 
-					((VariableDeclarationFragment)node.fragments().get(0))
-						.getName().toString();
-			System.out.println("74" + temp + "  " + genericFieldName);
-			if (temp.equals(genericFieldName)) {
-				System.out.println("75: " + node.getType().toString());
-				getTypeName(node.getType());
-			}
-		}
-		
-		return super.visit(node);
 	}
 
 	@Override
 	public boolean visit(MethodDeclaration node) {
 
 //		System.out.println(node.getName() + "--------------");
-		if (node.getBody() != null && parameterizedType == null) {
+		if (node.getBody() != null) {
 			node.getBody().accept(new MethodVisitor());
 		}
 		
-		if (tempFieldName != null && parameterizedType == null) {
+		if (fieldName != null) {
 			List parametersList = node.parameters();
 		
 			for (Object object : parametersList) {
 				String parameter = object.toString();
-				String parameterName = parameter.substring(parameter.indexOf(" ")+1);
-				String parameterType = parameter.substring(0, parameter.indexOf(" "));
-				
-				if (parameterName.equals(genericFieldName)) {
-					System.out.println("64par: " + parameterType + " " + parameterName);
-					parameterizedType = parameterType;
+				if (parameter.contains(fieldName)) {
+//					System.out.println("par: " + parameter.substring(0, parameter.indexOf(" ")));
+					parameterizedType = parameter.substring(0, parameter.indexOf(" "));
 				}
 			}
 		}
@@ -108,19 +71,28 @@ public class AddGeneric extends ASTVisitor{
 
 	class MethodVisitor extends ASTVisitor {
 		
+//		@Override
+//		public boolean visit(ClassInstanceCreation node) {
+//			System.out.println("ddd"+node.toString());
+//			if (node.getType() != null && fieldName != null ) {
+//				getTypeName(node.getType());
+//			}
+//
+//			return super.visit(node);
+//		}
+		
 		@Override
 		public boolean visit(VariableDeclarationStatement node) {
 			
 //			System.out.println("ddd"+node.toString());
 //			System.out.println("fff"+((VariableDeclarationFragment)node.fragments().get(0)).getName());
 			
-			tempFieldName = 
+			String tempFieldName = 
 					((VariableDeclarationFragment)node.fragments().get(0))
 						.getName().toString();
-			if (node.getType() != null && tempFieldName != null 
-					&& tempFieldName.equals(genericFieldName)) {
+			if (node.getType() != null && fieldName != null && tempFieldName.equals(fieldName)) {
 				getTypeName(node.getType());
-				System.out.println("ddd "+parameterizedType);
+				System.out.println("fff"+parameterizedType);
 			}
 			return super.visit(node);
 		}
@@ -133,29 +105,19 @@ public class AddGeneric extends ASTVisitor{
 			if (node.getExpression() != null) {
 				String expression = node.toString();	
 				
-				if (getExpression().equals(expression) && parameterizedType == null) {
+				if (getExpression().equals(expression)) {
 					
 					Pattern pattern = Pattern.compile("\\( *new *([A-Z]\\w*)\\(");
 					Matcher matcher = pattern.matcher(expression);
 					if (matcher.find()) {
 						parameterizedType = matcher.group(1);
-						matcher = null;
-					}
-					
-					pattern = Pattern.compile("\\.(?:add)|(?:indexOf)\\w*\\( *(\\w*)\\)");
-					matcher = pattern.matcher(expression);
-					if (matcher.find()) {
-						tempFieldName = matcher.group(1);
-						matcher = null;
 					}
 					
 					pattern = Pattern.compile("\\.add\\w*\\( *(\\w*)\\)");
 					matcher = pattern.matcher(expression);
 					if (matcher.find()) {
-						matcher.group(1).equals("this");
-						parameterizedType = className;
-						matcher = null;
-					}
+						fieldName = matcher.group(1);
+					} 
 				}
 				
 				
@@ -184,7 +146,7 @@ public class AddGeneric extends ASTVisitor{
 		}
 		
 		//if it's a simple type
-		else if (node.isSimpleType() && parameterizedType == null) {
+		else if (node.isSimpleType()) {
 			parameterizedType = node.toString();
 		}
 	}
