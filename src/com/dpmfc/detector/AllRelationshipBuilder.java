@@ -12,14 +12,15 @@ public class AllRelationshipBuilder {
 	
 	private static RelationBean allRelation = new RelationBean();
 	private HashMap<String, String> classAndPath = new HashMap<String, String>();
+	//save generic
+	protected HashMap<String, String> sourceAndParameterMap;
 	
 	public void buildAllRelationship(String projectPath) throws Exception{
 
 		RelationDetector2 relationDetector = new RelationDetector2(projectPath, allRelation);
-		allRelation = relationDetector.getAllRelation();
-		
+		allRelation = relationDetector.getAllRelation();		
 		classAndPath = relationDetector.getClassAndPath();
-
+		sourceAndParameterMap = relationDetector.getSourceAndParameterMap();
 		relationDetector.removeJDKClass(allRelation);
 	}
 	
@@ -64,5 +65,9 @@ public class AllRelationshipBuilder {
 	
 	public HashMap getClassAndPath() {
 		return classAndPath;
+	}
+	
+	public HashMap<String, String> getSourceAndParameterMap() {
+		return sourceAndParameterMap;
 	}
 }

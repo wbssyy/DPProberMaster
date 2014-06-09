@@ -14,7 +14,7 @@ public class CompositeCodeAnalysis extends CodeAnalysis {
 		super(path);
 		this.flag = flag;
 	}
-
+	
 	@Override
 	public boolean visit(FieldDeclaration node) {
 		

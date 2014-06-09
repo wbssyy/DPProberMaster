@@ -22,6 +22,7 @@ public class MarkGeneric {
 	
 	private ArrayList<String> expressionList;
 	private String parameterizedType;
+	private String sourceClassName;
 	
 	public MarkGeneric() {
 		fieldMap = new HashMap<String, String>();
@@ -48,7 +49,8 @@ public class MarkGeneric {
 				if (fieldName.contains("=")) {
 					fieldName = fieldName.substring(0, fieldName.indexOf("="));
 				}
-				if (expressionName.equals(fieldName) && (expressionMethod.contains("add"))) {
+				if (expressionName.equals(fieldName) && (expressionMethod.contains("add") ||
+						expressionMethod.contains("contains"))) {
 					getParameterizedType(classPath, expression);
 					addFlag = true;
 				}
@@ -78,9 +80,21 @@ public class MarkGeneric {
 			String fieldName = entry.getKey().toString();
 			String fieldType = entry.getValue().toString();
 			
-			System.out.println("77: " + fieldType + "<" + parameterizedType +
+			System.out.println(fieldType + "<" + parameterizedType +
 					">" + " " + fieldName + "; " + classPath);
 		}
+	}
+	
+	public void setSourceClassName(String source) {
+		sourceClassName = source;
+	}
+	
+	public String getSourceClassName() {
+		return sourceClassName;
+	}
+	
+	public String getParameterizedType() {
+		return parameterizedType;
 	}
 	
 	/*

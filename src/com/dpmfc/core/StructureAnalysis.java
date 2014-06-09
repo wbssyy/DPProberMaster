@@ -16,6 +16,9 @@ public abstract class StructureAnalysis {
 	
 	protected HashMap<String, String> classAndPath;
 	
+	//save generic
+	protected HashMap<String, String> sourceAndParameterMap;
+	
 	public HashMap<String, String> getClassAndPath() {
 		return classAndPath;
 	}
@@ -35,6 +38,10 @@ public abstract class StructureAnalysis {
 	
 	public void setCodeAnalysis(CodeAnalysis codeAnalysis) {
 		this.codeAnalysis = codeAnalysis;
+	}
+	
+	public void setSourceAndParameterMap(HashMap<String, String> map) {
+		sourceAndParameterMap = map;
 	}
 	
 	public abstract void doStructureAnalyze();

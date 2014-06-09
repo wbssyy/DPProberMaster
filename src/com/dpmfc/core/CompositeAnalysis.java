@@ -29,6 +29,13 @@ public class CompositeAnalysis extends StructureAnalysis {
 	@Override
 	public void doStructureAnalyze() {
 		
+//		Set<Entry<String, String>> tempSet = sourceAndParameterMap.entrySet();
+//		for (Entry<String, String> entry : tempSet) {
+//			String className = entry.getKey();
+//			String par = entry.getValue();
+//			System.out.println(className + "<" + par + ">");
+//		}
+		
 		List<String> componentList = new ArrayList<String>();
 		HashMap<String, RelatedClass> allRelationMap = allRelation.getAllRelationMap();
 		Set<Entry<String, Integer>> set = weightMap.entrySet();
@@ -64,12 +71,14 @@ public class CompositeAnalysis extends StructureAnalysis {
 			}
 			
 			for (String compos : compositeList) {
-				System.out.println(number++ + ".component: " + component + "; composite: " + compos );
+				if (sourceAndParameterMap.containsKey(compos)) {
+					System.out.println(number++ + ".component: " + component + "; composite: " + compos );
+				}
 			}
 			
-			if (leafList.size()>0 && compositeList.size()>0) {
-				foobar(component, leafList, compositeList);
-			}
+//			if (leafList.size()>0 && compositeList.size()>0) {
+//				foobar(component, leafList, compositeList);
+//			}
 		}
 		
 //		printPatternInstance();
@@ -95,5 +104,4 @@ public class CompositeAnalysis extends StructureAnalysis {
 			System.out.println(instance);
 		}
 	}
-	
 }

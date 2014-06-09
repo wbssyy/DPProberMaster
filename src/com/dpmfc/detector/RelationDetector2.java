@@ -64,6 +64,9 @@ public class RelationDetector2 extends ASTVisitor {
 	private List<String> genericClassList;
 	private List<String> JDKGenericList;
 	
+	//save generic
+	protected HashMap<String, String> sourceAndParameterMap = new HashMap<String, String>();
+	
 	public RelationDetector2(String projectPath, RelationBean relationBean) throws Exception{
 		super();
 		
@@ -92,6 +95,13 @@ public class RelationDetector2 extends ASTVisitor {
 			markGeneric.checkGenericInSystem(genericClassList, JDKGenericList);
 			markGeneric.hasAddAndRemoveCall(classPath);
 			markGeneric.printGeneric(classPath);
+			
+			String genericSource = markGeneric.getSourceClassName();
+			String genericParameter = markGeneric.getParameterizedType();
+			if (genericSource != null && genericParameter != null) {
+				allRelation.putRelation(source, destination, Weight.ASSOCIATION);
+				sourceAndParameterMap.put(genericSource, genericParameter);
+			}
 		}
 	}
 	
@@ -142,6 +152,8 @@ public class RelationDetector2 extends ASTVisitor {
 	public boolean visit(TypeDeclaration node) {
 		
 		source = node.getName().toString();
+		
+		markGeneric.setSourceClassName(source);
 		
 		if ( node.getSuperclassType() != null) {
 			String superNode = node.getSuperclassType().toString();
@@ -240,6 +252,9 @@ public class RelationDetector2 extends ASTVisitor {
 		this.classAndPath = classAndPath;
 	}
 	
+	public HashMap<String, String> getSourceAndParameterMap() {
+		return sourceAndParameterMap;
+	}
 	
 	/*
 	 * for inheritance detecting, include Inheritance and realization

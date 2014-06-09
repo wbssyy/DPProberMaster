@@ -1,78 +1,96 @@
 package com.dpmfc.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import com.dpmfc.bean.ProjectInfo;
+import com.dpmfc.bean.Weight;
+import com.dpmfc.bean.RelationBean.RelatedClass;
 
 public class ProxyAnalysis extends StructureAnalysis{
 	
 	//weight of each role of the pattern
-	private int realSubjectW = 65;
-	private int subjectW     = 49;
-	private int proxyW       = 55;
-	private static int number = 0;
+	private int realSubjectW = Weight.INHERITANCE_A * Weight.ASSOCIATION_B;	//65;
+	private int subjectW     = Weight.INHERITANCE_B * Weight.INHERITANCE_B;	//49;
+	private int proxyW       = Weight.INHERITANCE_A * Weight.ASSOCIATION_A;	//55;
+	private static int number = 1;
 	@Override
-	public void doStructureAnalyze(ProjectInfo projectInfo) {
+	public void doStructureAnalyze() {
 		
-		HashMap weightMap      = projectInfo.getWeightMap();
-		HashMap inheritanceMap = projectInfo.getInheritanceMap();
-		HashMap associationMap = projectInfo.getAssciationMap();
+		List<String> proxyList = new ArrayList<String>();
+		HashMap<String, RelatedClass> allRelationMap = allRelation.getAllRelationMap();
+		Set<Entry<String, Integer>> set = weightMap.entrySet();
 		
-//		HashMap<Integer, List<String>> specialWeightMap = projectInfo.getContainWClassMap();
-//		List<String> proxyList = specialWeightMap.get(proxyW);
-//		
-//		for (String proxyName : proxyList) {
-//			
-//		}
-		
-		Iterator iterator = weightMap.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Map.Entry entry = (Map.Entry)iterator.next();
-			String proxyName = entry.getKey().toString();
-			Integer weight = (Integer)entry.getValue();
+		//get all the abstraction candidates
+		for (Entry<String, Integer> entry : set) {
+			String className = entry.getKey();
+			int weight = entry.getValue();
 			
-			if (weight % proxyW == 0) {
-//				System.out.println("there are some proxy candidate!");
-				
-				//this class is a proxy example of candidate
-				//get subject candidate list through inheritanceMap
-				HashSet inheritanceSet = (HashSet)inheritanceMap.get(proxyName);
-				List subjectCanList = projectInfo.containWeight(subjectW, inheritanceSet);
-				
-				if (subjectCanList.size() > 0) {
-					
-//					System.out.println("there are some subject candidate!");
-					
-					//get realSubject candidate list through associationMap
-					HashSet associationSet = (HashSet)associationMap.get(proxyName);
-					List realSubjectCanList = projectInfo.containWeight(realSubjectW, associationSet);
-					
-					if (realSubjectCanList.size() > 0) {
-						
-//						System.out.println("there are some realsubject candidate!");
-						
-						//check the relationship between subject candidate and realSubject candidate
-						for (Object realSubject : realSubjectCanList) {
-							HashSet tempInherSet = (HashSet)inheritanceMap.get(realSubject);
-							
-							for (Object subject : subjectCanList) {
-								if (tempInherSet.contains(subject)) {
-									number++;
-									System.out.println(number+". proxy: " + proxyName);
-									System.out.println("subject: " + subject);
-									System.out.println("realSubject: " + realSubject);
-								}
-							}
-						}
-					}
-				}
+			if (weight != 0 && weight % proxyW == 0) {
+				proxyList.add(className);
 			}
 		}
 		
+		for (String proxy : proxyList) {
+			RelatedClass relatedClass = allRelationMap.get(proxy);
+			List<String> subjectList = new ArrayList<String>();
+			List<String> realSubjectList = new ArrayList<String>();
+			
+			HashMap<String, Integer> relatedMap = relatedClass.getRelatedClassMap();
+			Set<Entry<String, Integer>> relatedSet = relatedMap.entrySet();
+			for (Entry<String, Integer> entry : relatedSet) {
+				String className = entry.getKey();
+				int weight =entry.getValue();
+				
+				if (weight % Weight.INHERITANCE_B == 0) {
+					subjectList.add(className);
+				}
+				if (weight % Weight.ASSOCIATION_B == 0) {
+					realSubjectList.add(className);
+				}
+			}
+			
+			if (subjectList.size() >0 && realSubjectList.size() > 0) {
+				isRealSubject(proxy, subjectList, realSubjectList);
+			}
+		}
+
 	}
+	
+	private void isRealSubject(String proxy, List<String> subjectList, List<String> realSubjectList) {
+		
+		for (String subject : subjectList) {
+			HashMap<String, RelatedClass> allRelationMap = allRelation.getAllRelationMap();
+			RelatedClass relatedClass = allRelationMap.get(subject);
+			
+			HashMap<String, Integer> relatedMap = relatedClass.getRelatedClassMap();
+			
+			for (String realSubject : realSubjectList) {
+				if (relatedMap.containsKey(realSubject) && 
+						relatedMap.get(realSubject) % Weight.INHERITANCE_A == 0 && 
+						!proxy.equals(realSubject)) {		
+					printResult(proxy, subject, realSubject);
+				}
+			}
+		}
+	}
+
+	private void printResult(String proxy, String subject, String realSubject) {
+		
+		if (!subject.equals(realSubject)) {
+			System.out.println(number++ + ". proxy: " + proxy + "; " + classAndPath.get(proxy));
+			System.out.println("subject: " + subject + "; " + classAndPath.get(subject));
+			System.out.println("realSubject: " + realSubject + "; " + classAndPath.get(realSubject));
+		}
+		
+		System.out.println();
+	}
+	
 	
 }

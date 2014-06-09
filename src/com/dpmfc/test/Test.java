@@ -18,7 +18,9 @@ import com.dpmfc.bean.RelationBean;
 import com.dpmfc.bean.RelationBean.RelatedClass;
 import com.dpmfc.core.AdapterClassAnalysis;
 import com.dpmfc.core.AdapterObjectAnalysis;
+import com.dpmfc.core.BridgeAnalysis;
 import com.dpmfc.core.CompositeAnalysis;
+import com.dpmfc.core.ProxyAnalysis;
 import com.dpmfc.core.StructureAnalysis;
 import com.dpmfc.core.WeightCalculator;
 import com.dpmfc.detector.AllRelationshipBuilder;
@@ -49,6 +51,7 @@ public class Test {
 		RelationBean allRelation = relationshipBuilder.getAllRelation();
 //		allRelation.printAllRelationMap();
 		
+		HashMap<String, String> sourceAndParameterMap = relationshipBuilder.getSourceAndParameterMap();
 		/*
 		 * test 
 		 */
@@ -89,16 +92,25 @@ public class Test {
 //		analysis.setClassAndPath(classAndPath);
 //		analysis.doStructureAnalyze();
 		
-//		analysis = new CompositeAnalysis();
+//		analysis = new AdapterObjectAnalysis();
+//		analysis.init(weightMap, allRelation);
+//		analysis.doStructureAnalyze();
+		
+//		analysis = new BridgeAnalysis();
+//		analysis.init(weightMap, allRelation);
+//		analysis.setClassAndPath(classAndPath);
+//		analysis.doStructureAnalyze();
+//	
+//		analysis = new ProxyAnalysis();
 //		analysis.init(weightMap, allRelation);
 //		analysis.setClassAndPath(classAndPath);
 //		analysis.doStructureAnalyze();
 		
-//		analysis = new AdapterObjectAnalysis();
+//		analysis = new CompositeAnalysis();
 //		analysis.init(weightMap, allRelation);
+//		analysis.setClassAndPath(classAndPath);
+//		analysis.setSourceAndParameterMap(sourceAndParameterMap);
 //		analysis.doStructureAnalyze();
-	
-		
 		/*
 		 * calculate time-consuming
 		 */

@@ -3,6 +3,8 @@ package com.dpmfc.test;
 import java.awt.Choice;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,14 +24,23 @@ public class TestMain {
 	
 	public static void main(String[] args) throws Exception {
 //		CodeModifier modifier = new CodeModifier();
-		String expression = "parameters.indexOfElement( dfgqewr)";
-		Pattern pattern = Pattern.compile("\\.(?:add)|(?:indexOf)\\w*\\( *(\\w*)\\)");
+		String expression = "parameters.indexOfElement( this)";
+		Pattern pattern = Pattern.compile("\\.add\\w*\\( *(\\w*)\\)");
 		Matcher matcher = pattern.matcher(expression);
 		if (matcher.find()) {
 			System.out.println(matcher.group(1));
 		} else {
 			System.out.println("no");
 		}
+//		Vector vector = new Vector();
+//		TestVector testVector = new TestVector();
+//		vector.add("str");
+//		vector.add(123);
+//		vector.add(testVector);
+//		
+//		for (Object object : vector) {
+//			System.out.println(object);
+//		}
 	}
 	
 	private static void NonGeneric() {

@@ -1,25 +1,21 @@
 package com.dpmfc.detector;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParameterizedType;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
-import com.dpmfc.bean.Weight;
 import com.dpmfc.test.JavaCode2AST;
 
 public class AddGeneric extends ASTVisitor{
@@ -28,7 +24,7 @@ public class AddGeneric extends ASTVisitor{
 	private String parameterizedType;
 	private String genericFieldName;
 	private String tempFieldName;
-	private String className;
+	String className;
 	
 	
 	public AddGeneric(String classPath, String expression) throws Exception{
@@ -43,9 +39,9 @@ public class AddGeneric extends ASTVisitor{
 		} 
 		
 //		System.out.println(classPath);
-		System.out.println("35: "+expression);
+//		System.out.println("35: "+expression);
 		CompilationUnit compUnit = JavaCode2AST.getCompilationUnit(classPath);
-		compUnit.accept(this);
+		compUnit.accept(new GenericParaInMethod());
 		
 		if (tempFieldName != null && parameterizedType == null) {
 			compUnit = JavaCode2AST.getCompilationUnit(classPath);
@@ -59,51 +55,54 @@ public class AddGeneric extends ASTVisitor{
 	}
 	
 	@Override
-	public boolean visit(TypeDeclaration node) {
-		className = node.getName().toString();
-		return super.visit(node);
-	}
-	
-	@Override
 	public boolean visit(FieldDeclaration node) {
 
 		if (tempFieldName != null && parameterizedType == null) {
 			String temp = 
 					((VariableDeclarationFragment)node.fragments().get(0))
 						.getName().toString();
-			System.out.println("74" + temp + "  " + genericFieldName);
+//			System.out.println("74: " + temp + "  " + genericFieldName);
 			if (temp.equals(genericFieldName)) {
-				System.out.println("75: " + node.getType().toString());
+//				System.out.println("75: " + node.getType().toString());
 				getTypeName(node.getType());
 			}
 		}
 		
 		return super.visit(node);
 	}
-
-	@Override
-	public boolean visit(MethodDeclaration node) {
-
-//		System.out.println(node.getName() + "--------------");
-		if (node.getBody() != null && parameterizedType == null) {
-			node.getBody().accept(new MethodVisitor());
+	
+	class GenericParaInMethod extends ASTVisitor {
+		
+		@Override
+		public boolean visit(TypeDeclaration node) {
+			className = node.getName().toString();
+//			System.out.println("className "+className);
+			return super.visit(node);
 		}
 		
-		if (tempFieldName != null && parameterizedType == null) {
-			List parametersList = node.parameters();
-		
-			for (Object object : parametersList) {
-				String parameter = object.toString();
-				String parameterName = parameter.substring(parameter.indexOf(" ")+1);
-				String parameterType = parameter.substring(0, parameter.indexOf(" "));
-				
-				if (parameterName.equals(genericFieldName)) {
-					System.out.println("64par: " + parameterType + " " + parameterName);
-					parameterizedType = parameterType;
+		@Override
+		public boolean visit(MethodDeclaration node) {
+
+			if (node.getBody() != null && parameterizedType == null) {
+				node.getBody().accept(new MethodVisitor());
+			}
+			
+			if (tempFieldName != null && parameterizedType == null) {
+				List parametersList = node.parameters();
+			
+				for (Object object : parametersList) {
+					String parameter = object.toString();
+					String parameterName = parameter.substring(parameter.indexOf(" ")+1);
+					String parameterType = parameter.substring(0, parameter.indexOf(" "));
+					
+					if (parameterName.equals(genericFieldName)) {
+//						System.out.println("in MethodDeclaration: " + parameterType + " " + parameterName);
+						parameterizedType = parameterType;
+					}
 				}
 			}
+			return super.visit(node);
 		}
-		return super.visit(node);
 	}
 
 	class MethodVisitor extends ASTVisitor {
@@ -118,9 +117,10 @@ public class AddGeneric extends ASTVisitor{
 					((VariableDeclarationFragment)node.fragments().get(0))
 						.getName().toString();
 			if (node.getType() != null && tempFieldName != null 
-					&& tempFieldName.equals(genericFieldName)) {
+					&& tempFieldName.equals(genericFieldName) 
+					&& parameterizedType == null) {
 				getTypeName(node.getType());
-				System.out.println("ddd "+parameterizedType);
+//				System.out.println("in VariableDeclarationStatement "+parameterizedType);
 			}
 			return super.visit(node);
 		}
@@ -152,8 +152,11 @@ public class AddGeneric extends ASTVisitor{
 					pattern = Pattern.compile("\\.add\\w*\\( *(\\w*)\\)");
 					matcher = pattern.matcher(expression);
 					if (matcher.find()) {
-						matcher.group(1).equals("this");
-						parameterizedType = className;
+						if (matcher.group(1).toString().equals("this")) {
+							parameterizedType = className;
+//							System.out.println("this");
+//							System.out.println(parameterizedType);
+						}
 						matcher = null;
 					}
 				}
