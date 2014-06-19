@@ -142,7 +142,7 @@ public class AddGeneric extends ASTVisitor{
 						matcher = null;
 					}
 					
-					pattern = Pattern.compile("\\.(?:add)|(?:indexOf)\\w*\\( *(\\w*)\\)");
+					pattern = Pattern.compile("\\.(?:add)|(?:indexOf)|(?:contains)\\w*\\( *(\\w*)\\)");
 					matcher = pattern.matcher(expression);
 					if (matcher.find()) {
 						tempFieldName = matcher.group(1);

@@ -18,15 +18,15 @@ public class CompositeCodeAnalysis extends CodeAnalysis {
 	@Override
 	public boolean visit(FieldDeclaration node) {
 		
-		if (flag != null && flag.equals("composite")) {
+		if (node.getType().isParameterizedType()) {
+			String name = ((VariableDeclarationFragment)node.fragments().get(0)).getName().toString();
+			String type = node.getType().toString();
 			
-			if (node.getType().isArrayType() || node.getType().isParameterizedType()) {
-				String name = ((VariableDeclarationFragment)node.fragments().get(0)).getName().toString();
-				String type = node.getType().toString();
-				System.out.println(name + " " + type);
+			if (!type.contains(",")) {
 				fieldNameAndType.put(name, type);
-			}	
+			}
 		}
+		
 		return super.visit(node);
 	}
 }

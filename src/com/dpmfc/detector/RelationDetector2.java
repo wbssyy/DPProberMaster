@@ -99,7 +99,7 @@ public class RelationDetector2 extends ASTVisitor {
 			String genericSource = markGeneric.getSourceClassName();
 			String genericParameter = markGeneric.getParameterizedType();
 			if (genericSource != null && genericParameter != null) {
-				allRelation.putRelation(source, destination, Weight.ASSOCIATION);
+				allRelation.putRelation(source, genericParameter, Weight.ASSOCIATION);
 				sourceAndParameterMap.put(genericSource, genericParameter);
 			}
 		}
@@ -153,8 +153,6 @@ public class RelationDetector2 extends ASTVisitor {
 		
 		source = node.getName().toString();
 		
-		markGeneric.setSourceClassName(source);
-		
 		if ( node.getSuperclassType() != null) {
 			String superNode = node.getSuperclassType().toString();
 			source = superNode + "." + source;
@@ -172,6 +170,7 @@ public class RelationDetector2 extends ASTVisitor {
 			}	
 			source += "<" + parameters + ">";
 			genericClassList.add(source);
+			
 //			System.out.println(source + "; " + packageName);
 		}
 		
@@ -191,7 +190,7 @@ public class RelationDetector2 extends ASTVisitor {
 		associationDetect(node);
 		
 		// for mark generic
-		markGeneric.checkGenericByField(destination, node);
+		markGeneric.checkGenericByField(source, node);
 		
 		return super.visit(node);
 	}

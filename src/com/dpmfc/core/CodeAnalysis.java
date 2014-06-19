@@ -67,15 +67,15 @@ public abstract class CodeAnalysis extends ASTVisitor {
 		}
 	}
 
-	@Override
-	public boolean visit(FieldDeclaration node) {
-		
-		String name = ((VariableDeclarationFragment)node.fragments().get(0)).getName().toString();
-		String type = node.getType().toString();
-		fieldNameAndType.put(name, type);
-
-		return super.visit(node);
-	}
+//	@Override
+//	public boolean visit(FieldDeclaration node) {
+//		
+//		String name = ((VariableDeclarationFragment)node.fragments().get(0)).getName().toString();
+//		String type = node.getType().toString();
+//		fieldNameAndType.put(name, type);
+//
+//		return super.visit(node);
+//	}
 	
 	@Override
 	public boolean visit(MethodDeclaration node) {

@@ -18,14 +18,21 @@ public class MarkGeneric {
 	 * key: field name
 	 * value: field type
 	 */
-	private HashMap<String, String> fieldMap;
+	private HashMap<String, String> fieldAndTypeMap;
+	
+	/*
+	 * key: field name
+	 * value: the class where the field in
+	 */
+	private HashMap<String, String> fieldAndClassMap;
 	
 	private ArrayList<String> expressionList;
 	private String parameterizedType;
 	private String sourceClassName;
 	
 	public MarkGeneric() {
-		fieldMap = new HashMap<String, String>();
+		fieldAndTypeMap = new HashMap<String, String>();
+		fieldAndClassMap = new HashMap<String, String>();
 		expressionList = new ArrayList<String>();
 	}
 	
@@ -35,7 +42,7 @@ public class MarkGeneric {
 	 */
 	public void hasAddAndRemoveCall(String classPath) {
 
-		Iterator iterator = fieldMap.entrySet().iterator();
+		Iterator iterator = fieldAndTypeMap.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Map.Entry entry = (Map.Entry)iterator.next();
 			String fieldName = entry.getKey().toString();
@@ -74,7 +81,7 @@ public class MarkGeneric {
 	 */
 	public void printGeneric(String classPath) {
 		
-		Iterator iterator = fieldMap.entrySet().iterator();
+		Iterator iterator = fieldAndTypeMap.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Map.Entry entry = (Map.Entry)iterator.next();
 			String fieldName = entry.getKey().toString();
@@ -118,12 +125,14 @@ public class MarkGeneric {
 	/*
 	 * Determine whether the field is a generic
 	 */
-	public void checkGenericByField(String destination, FieldDeclaration node) {
+	public void checkGenericByField(String source, FieldDeclaration node) {
 		
 		if (!node.getType().isParameterizedType()) {
 				String fieldName = node.fragments().get(0).toString();
-				if (fieldMap != null) {
-					fieldMap.put(fieldName, node.getType().toString());	
+				if (fieldAndTypeMap != null) {
+					fieldAndTypeMap.put(fieldName, node.getType().toString());	
+					
+					fieldAndClassMap.put(fieldName, source);
 				}
 		}
 	}
@@ -147,7 +156,7 @@ public class MarkGeneric {
 	 */
 	public void checkGenericInSystem(List genericClassList, List JDKGenericList) {
 		
-		Iterator iterator = fieldMap.entrySet().iterator();
+		Iterator iterator = fieldAndTypeMap.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Map.Entry entry = (Map.Entry)iterator.next();
 			String fieldName = entry.getKey().toString();
@@ -166,8 +175,11 @@ public class MarkGeneric {
 					flag = true;
 				}
 			}
+			
 			if (!flag) {
 				iterator.remove();
+			} else {
+				sourceClassName = fieldAndClassMap.get(fieldName);
 			}
 		}
 	}

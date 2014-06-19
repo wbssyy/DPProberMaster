@@ -106,11 +106,11 @@ public class Test {
 //		analysis.setClassAndPath(classAndPath);
 //		analysis.doStructureAnalyze();
 		
-//		analysis = new CompositeAnalysis();
-//		analysis.init(weightMap, allRelation);
-//		analysis.setClassAndPath(classAndPath);
-//		analysis.setSourceAndParameterMap(sourceAndParameterMap);
-//		analysis.doStructureAnalyze();
+		analysis = new CompositeAnalysis();
+		analysis.init(weightMap, allRelation);
+		analysis.setClassAndPath(classAndPath);
+		analysis.setSourceAndParameterMap(sourceAndParameterMap);
+		analysis.doStructureAnalyze();
 		/*
 		 * calculate time-consuming
 		 */
