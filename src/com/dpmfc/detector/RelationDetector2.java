@@ -99,12 +99,21 @@ public class RelationDetector2 extends ASTVisitor {
 			String genericSource = markGeneric.getSourceClassName();
 			String genericParameter = markGeneric.getParameterizedType();
 			if (genericSource != null && genericParameter != null) {
-				allRelation.putRelation(source, genericParameter, Weight.ASSOCIATION);
+//				System.out.println("source: " + source + " " + "genericParameter: " + genericParameter);
+				allRelation.putRelation(genericSource, genericParameter, Weight.ASSOCIATION);
+				HashMap tempMap = allRelation.getAllRelationMap();
+				if (tempMap.containsKey("MenuItem")) {
+					tempMap.get("MenuItem");
+				}
 				sourceAndParameterMap.put(genericSource, genericParameter);
+				System.out.println("genericSource: " + genericSource + " " + "genericParameter: " + genericParameter);
 			}
 		}
 	}
 	
+	/*
+	 * remove the classes that outside the system
+	 */
 	public RelationBean removeJDKClass(RelationBean allRelation) {
 		
 		HashMap<String, RelatedClass> allRelationMap = allRelation.getAllRelationMap();
@@ -153,11 +162,11 @@ public class RelationDetector2 extends ASTVisitor {
 		
 		source = node.getName().toString();
 		
-		if ( node.getSuperclassType() != null) {
-			String superNode = node.getSuperclassType().toString();
-			source = superNode + "." + source;
-//			System.out.println("super node: "+superNode + "; son node: " + source);
-		}
+//		if ( node.getSuperclassType() != null) {
+//			String superNode = node.getSuperclassType().toString();
+//			source = superNode + "." + source;
+////			System.out.println("super node: "+superNode + "; son node: " + source);
+//		}
 		
 		if (node.typeParameters().size() > 0) {
 			String parameters = "";
@@ -240,6 +249,9 @@ public class RelationDetector2 extends ASTVisitor {
 		//if it's a simple type
 		else if (node.isSimpleType()) {
 			destination = node.toString();
+			if (destination.contains(".")) {
+				destination = destination.substring(destination.lastIndexOf('.')+1);
+			}
 		}
 	}
 	

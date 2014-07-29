@@ -20,7 +20,7 @@ import com.dpmfc.bean.RelationBean.RelatedClass;
 public class CompositeAnalysis extends StructureAnalysis {
 
 	//weight of each role of the pattern
-	private int componentW = Weight.INHERITANCE_B * Weight.ASSOCIATION_B; //91;
+	private int componentW = Weight.INHERITANCE_B * Weight.INHERITANCE_B * Weight.ASSOCIATION_B; //637;
 	private int compositeW = Weight.INHERITANCE_A * Weight.ASSOCIATION_A; //55;
 	private int leafW      = Weight.INHERITANCE_A; //5;
 	private static int number = 1;
@@ -32,15 +32,15 @@ public class CompositeAnalysis extends StructureAnalysis {
 		HashMap<String, RelatedClass> allRelationMap = allRelation.getAllRelationMap();
 		Set<Entry<String, Integer>> set = weightMap.entrySet();
 		
-		RelatedClass map = allRelationMap.get("MenuComponent.MenuBar");
-		HashMap<String, String> temp = map.getRelatedClassMap();
-		Iterator iterator1 = temp.entrySet().iterator();
-		while (iterator1.hasNext()) {
-			Map.Entry entry = (Map.Entry)iterator1.next();
-			String keyString = entry.getKey().toString();
-			String vString = entry.getValue().toString();
-			System.out.println(keyString + " " + vString);
-		}
+//		RelatedClass map = allRelationMap.get("MenuComponent.MenuBar");
+//		HashMap<String, String> temp = map.getRelatedClassMap();
+//		Iterator iterator1 = temp.entrySet().iterator();
+//		while (iterator1.hasNext()) {
+//			Map.Entry entry = (Map.Entry)iterator1.next();
+//			String keyString = entry.getKey().toString();
+//			String vString = entry.getValue().toString();
+//			System.out.println(keyString + " " + vString);
+//		}
 		
 		//get all the component candidates
 		for (Entry<String, Integer> entry : set) {
@@ -51,10 +51,13 @@ public class CompositeAnalysis extends StructureAnalysis {
 			}
 		}
 		
+		for (String cn : componentList) {
+			System.out.println(cn);
+		}
+		
 		System.out.println(componentList.size());
 		for (String component : componentList) {
-			
-//			System.out.println(component);
+					
 			RelatedClass relatedClass = allRelationMap.get(component);
 			List<String> leafList   = new ArrayList<String>();
 			List<String> compositeList   = new ArrayList<String>();
@@ -66,11 +69,16 @@ public class CompositeAnalysis extends StructureAnalysis {
 				String className = entry.getKey();
 				int weight = entry.getValue();
 				
-				if (weight % leafW == 0) {
-					leafList.add(className);
-				}
+//				if (weight % leafW == 0) {
+//					leafList.add(className);
+//				}
+				
+//				if (component.equals("MenuItem")) {
+//					System.out.println("ddd");
+//				}
 				if (weight % compositeW == 0) {
 					compositeList.add(className);
+//					System.out.println("component: " + component + "; composite: " + className );
 				}
 			}
 			
@@ -83,8 +91,9 @@ public class CompositeAnalysis extends StructureAnalysis {
 			Map.Entry entry = (Map.Entry)iterator.next();
 			String keyString = entry.getKey().toString();
 			String classNameString = entry.getValue().toString();
-			System.out.println(keyString + "<" + classNameString + ">");
+			System.out.println(keyString + "---->" + classNameString);
 		}
+		
 //		printPatternInstance();
 	}
 
@@ -98,7 +107,9 @@ public class CompositeAnalysis extends StructureAnalysis {
 			codeAnalysis = new CompositeCodeAnalysis(compositePath);
 			
 			HashMap<String, String> fieldMap = codeAnalysis.getFieldNameAndType();
-			if (fieldMap != null) {
+			
+			//there is a generic field in the class
+			if (fieldMap.size() > 0) {
 				Iterator iterator = fieldMap.entrySet().iterator();
 				while (iterator.hasNext()) {
 					Map.Entry entry = (Map.Entry)iterator.next();
@@ -110,6 +121,13 @@ public class CompositeAnalysis extends StructureAnalysis {
 						printPatternInstance(component, composite);
 					}
 					
+				}
+			} else {
+				
+				// there is a generic in the class after "add generic"
+				if (sourceAndParameterMap.get(composite) != null && 
+						sourceAndParameterMap.get(composite).equals(component)) {
+					printPatternInstance(component, composite);
 				}
 			}
 			

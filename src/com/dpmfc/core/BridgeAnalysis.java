@@ -31,10 +31,6 @@ public class BridgeAnalysis extends StructureAnalysis {
 			String className = entry.getKey();
 			int weight = entry.getValue();
 			
-			if (className.equals("GraphicAttribute")) {
-				System.out.println("GraphicAttribute: " + weight);
-			}
-			
 			if (weight != 0 && weight % abstractionW == 0) {
 				abstractionList.add(className);
 			}

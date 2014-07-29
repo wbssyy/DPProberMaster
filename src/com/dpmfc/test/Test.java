@@ -1,35 +1,12 @@
 package com.dpmfc.test;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.MethodInvocation;
 
 import com.dpmfc.bean.RelationBean;
-import com.dpmfc.bean.RelationBean.RelatedClass;
-import com.dpmfc.core.AdapterClassAnalysis;
-import com.dpmfc.core.AdapterObjectAnalysis;
-import com.dpmfc.core.BridgeAnalysis;
-import com.dpmfc.core.CompositeAnalysis;
-import com.dpmfc.core.ProxyAnalysis;
+import com.dpmfc.core.StrategyAnalysis;
 import com.dpmfc.core.StructureAnalysis;
 import com.dpmfc.core.WeightCalculator;
 import com.dpmfc.detector.AllRelationshipBuilder;
-import com.dpmfc.detector.AssociationInfoDetector;
-import com.dpmfc.detector.ClassDetector;
-import com.dpmfc.detector.DependencyInfoDetector;
-import com.dpmfc.detector.InheritanceInfoDetector;
-import com.dpmfc.detector.RelationDetector;
-import com.dpmfc.util.FileUtil;
 
 
 public class Test {
@@ -49,7 +26,7 @@ public class Test {
 		relationshipBuilder.buildAllRelationship(projectPath);
 //		relationshipBuilder.printRelation();
 		RelationBean allRelation = relationshipBuilder.getAllRelation();
-//		allRelation.printAllRelationMap();
+		
 		
 		HashMap<String, String> sourceAndParameterMap = relationshipBuilder.getSourceAndParameterMap();
 		/*
@@ -86,14 +63,10 @@ public class Test {
 //		analysis.init(weightMap, allRelation);
 //		analysis.setClassAndPath(classAndPath);
 //		analysis.doStructureAnalyze();
-//		
+////		
 //		analysis = new AdapterObjectAnalysis();
 //		analysis.init(weightMap, allRelation);
 //		analysis.setClassAndPath(classAndPath);
-//		analysis.doStructureAnalyze();
-		
-//		analysis = new AdapterObjectAnalysis();
-//		analysis.init(weightMap, allRelation);
 //		analysis.doStructureAnalyze();
 		
 //		analysis = new BridgeAnalysis();
@@ -106,11 +79,25 @@ public class Test {
 //		analysis.setClassAndPath(classAndPath);
 //		analysis.doStructureAnalyze();
 		
-		analysis = new CompositeAnalysis();
+//		analysis = new CompositeAnalysis();
+//		analysis.init(weightMap, allRelation);
+//		analysis.setClassAndPath(classAndPath);
+//		analysis.setSourceAndParameterMap(sourceAndParameterMap);
+//		analysis.doStructureAnalyze();
+		
+//		analysis = new SingletonAnalysis();
+//		analysis.init(weightMap, allRelation);
+//		analysis.setClassAndPath(classAndPath);
+//		analysis.doStructureAnalyze();
+		
+		analysis = new StrategyAnalysis();
 		analysis.init(weightMap, allRelation);
 		analysis.setClassAndPath(classAndPath);
-		analysis.setSourceAndParameterMap(sourceAndParameterMap);
 		analysis.doStructureAnalyze();
+		
+//		allRelation.printAllRelationMap();
+//		allRelation.printToFile();
+		
 		/*
 		 * calculate time-consuming
 		 */

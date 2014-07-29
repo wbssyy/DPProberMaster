@@ -25,13 +25,19 @@ public class TestMain {
 	public static void main(String[] args) throws Exception {
 //		CodeModifier modifier = new CodeModifier();
 		String expression = "parameters.indexOfElement( this)";
+		expression = "re.er.fg.gggg";
+		expression = expression.substring(expression.lastIndexOf('.')+1);
 		Pattern pattern = Pattern.compile("\\.add\\w*\\( *(\\w*)\\)");
-		Matcher matcher = pattern.matcher(expression);
-		if (matcher.find()) {
-			System.out.println(matcher.group(1));
-		} else {
-			System.out.println("no");
-		}
+		System.out.println(expression);
+//		System.out.println(ddStrings[ddStrings.length]);
+//		Matcher matcher = pattern.matcher(expression);
+//		if (matcher.find()) {
+//			System.out.println(matcher.group(1));
+//		} else {
+//			System.out.println("no");
+//		}
+		
+	
 //		Vector vector = new Vector();
 //		TestVector testVector = new TestVector();
 //		vector.add("str");

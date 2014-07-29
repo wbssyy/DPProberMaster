@@ -9,9 +9,13 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import com.dpmfc.util.OutputUtil;
+
 public class RelationBean {
 
 	private HashMap<String, RelatedClass> allRelationMap;
+	
+	private StringBuffer sBuffer = new StringBuffer();
 	
 	public RelationBean() {
 		allRelationMap = new HashMap<String, RelatedClass>();
@@ -66,6 +70,10 @@ public class RelationBean {
 		allRelationMap.put(destination, relatedClass);
 	}
 	
+	public void printToFile() throws Exception{
+		OutputUtil.outputToTXT(sBuffer.toString());
+	}
+	
 	private Integer forwordWeight(String relation) {
 		switch (relation) {
 		case Weight.DEPENDENCY:
@@ -104,7 +112,10 @@ public class RelationBean {
 			Map.Entry entry = (Map.Entry)iterator.next();
 			String className = entry.getKey().toString();
 			RelatedClass relatedClass = (RelatedClass)entry.getValue();
-			System.out.println(className + ": ");
+//			System.out.println(className + ": ");
+			
+			sBuffer.append(className + ": " + '\n');
+			
 			relatedClass.printRelatedClassMap();
 		}
 	}
@@ -137,7 +148,9 @@ public class RelationBean {
 				Map.Entry entry = (Map.Entry)iterator.next();
 				String className = entry.getKey().toString();
 				int weight = (Integer)entry.getValue();
-				System.out.println("         <" + className + ", " + weight + ">");
+//				System.out.println("         <" + className + ", " + weight + ">");
+				
+				sBuffer.append("         <" + className + ", " + weight + ">" + '\n');
 			}
 		}
 	}

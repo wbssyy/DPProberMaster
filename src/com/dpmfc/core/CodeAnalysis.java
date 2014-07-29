@@ -31,6 +31,9 @@ public abstract class CodeAnalysis extends ASTVisitor {
 	// save all methods of a class
 	protected List methodList;
 	
+	// save all class that in the same file
+	protected HashMap<String, HashMap<String, String>> typeMap = new HashMap<String, HashMap<String,String>>();
+
 	/*
 	 * key: field name
 	 * value: field type 
@@ -96,6 +99,10 @@ public abstract class CodeAnalysis extends ASTVisitor {
 		return super.visit(node);
 	}
 
+	public HashMap<String, HashMap<String, String>> getTypeMap() {
+		return typeMap;
+	}
+	
 	public HashMap<String, List> getMethodInvoMap() {
 		return methodInvoMap;
 	}
