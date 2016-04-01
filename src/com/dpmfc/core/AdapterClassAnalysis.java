@@ -40,7 +40,7 @@ public class AdapterClassAnalysis extends StructureAnalysis {
 			}
 		}
 		
-		System.out.println( "----------"+adapterList.size() );
+//		System.out.println( "----------"+adapterList.size() );
 		
 		for (String adapterName : adapterList) {
 			RelatedClass relatedClass = allRelationMap.get(adapterName);
@@ -61,7 +61,8 @@ public class AdapterClassAnalysis extends StructureAnalysis {
 			foobar(adapterName, superList);
 		}
 		
-		printPatternInstance();
+		// print result
+//		printPatternInstance();       
 	}
 	
 	public void foobar(String adapter, List<String> superList) {

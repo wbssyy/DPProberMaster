@@ -14,7 +14,7 @@ import com.dpmfc.bean.RelationBean.RelatedClass;
 public class SingletonAnalysis extends StructureAnalysis {
 	
 	private int singletonW = Weight.ASSOCIATION_A * Weight.ASSOCIATION_B; //143
-	private static int number = 0;
+	private static int number = 1;
 
 	@Override
 	public void doStructureAnalyze() {
@@ -55,7 +55,7 @@ public class SingletonAnalysis extends StructureAnalysis {
 		
 		if (constructorMap != null && !constructorMap.containsKey("public") 
 				&& codeAnalysis.getMethodList().contains(singleton)) {
-			System.out.println("singleton: " + singleton );
+			System.out.println(number++ + ".singleton: " + singleton );
 		}
 	}
 

@@ -13,7 +13,7 @@ import com.dpmfc.bean.RelationBean.RelatedClass;
 public class StrategyAnalysis extends StructureAnalysis {
 
 	//weight of each role of the pattern
-	private int strategyW         = Weight.INHERITANCE_B * Weight.INHERITANCE_B * Weight.ASSOCIATION_B;	//91;
+	private int strategyW         = Weight.INHERITANCE_B * Weight.INHERITANCE_B * Weight.ASSOCIATION_B;	//637;
 	private int concreteStrategyW = Weight.INHERITANCE_A;	//5;
 	private int contextW          = Weight.ASSOCIATION_A;	//11;
 	private static int number = 1;

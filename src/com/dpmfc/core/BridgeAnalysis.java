@@ -53,7 +53,10 @@ public class BridgeAnalysis extends StructureAnalysis {
 			}
 			
 			if (implementorList.size()>0) {
-				printResult(abstraction, implementorList);
+				
+				// print result
+//				printResult(abstraction, implementorList);
+				
 //				System.out.println(temp++ + "-----------------");
 //				printResult(adapterName, targetList, adapteeList);
 				

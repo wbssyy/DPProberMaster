@@ -25,6 +25,8 @@ public class CompositeAnalysis extends StructureAnalysis {
 	private int leafW      = Weight.INHERITANCE_A; //5;
 	private static int number = 1;
 	
+	static int ttt = 1;
+	
 	@Override
 	public void doStructureAnalyze() {
 		
@@ -91,7 +93,7 @@ public class CompositeAnalysis extends StructureAnalysis {
 			Map.Entry entry = (Map.Entry)iterator.next();
 			String keyString = entry.getKey().toString();
 			String classNameString = entry.getValue().toString();
-			System.out.println(keyString + "---->" + classNameString);
+			System.out.println(ttt++ + " " + keyString + "---->" + classNameString);
 		}
 		
 //		printPatternInstance();

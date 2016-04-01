@@ -30,6 +30,8 @@ public class MarkGeneric {
 	private String parameterizedType;
 	private String sourceClassName;
 	
+	static int iii = 1;
+	
 	public MarkGeneric() {
 		fieldAndTypeMap = new HashMap<String, String>();
 		fieldAndClassMap = new HashMap<String, String>();
@@ -82,12 +84,13 @@ public class MarkGeneric {
 	public void printGeneric(String classPath) {
 		
 		Iterator iterator = fieldAndTypeMap.entrySet().iterator();
+		
 		while (iterator.hasNext()) {
 			Map.Entry entry = (Map.Entry)iterator.next();
 			String fieldName = entry.getKey().toString();
 			String fieldType = entry.getValue().toString();
 			
-			System.out.println(fieldType + "<" + parameterizedType +
+			System.out.println(iii++ + " " +fieldType + "<" + parameterizedType +
 					">" + " " + fieldName + "; " + classPath);
 		}
 	}

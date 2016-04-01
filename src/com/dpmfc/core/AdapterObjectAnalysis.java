@@ -74,7 +74,8 @@ public class AdapterObjectAnalysis extends StructureAnalysis {
 			}
 		}
 		
-		printPatternInstance();
+		// print result
+//		printPatternInstance();
 	}
 	
 	public void printResult(String adapter, List<String> targetList, List<String> adapteeList) {
