@@ -24,8 +24,7 @@ public class Test {
 	private static RelationBean allRelation = new RelationBean();
 	
 	public static void main(String[] args) throws Exception {
-//D:\\test\\src\\java\\util
-//D:\\JOSS-1\\JOSS-1\\struts(2.3.16)\\src
+
 		String projectPath = "D:\\test\\jhotdraw60b1\\jhotdraw60b1";
 		
 		/*
